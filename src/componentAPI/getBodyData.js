@@ -22,6 +22,7 @@ export const getBodyData = () => {
             store.dispatch('loadingSatatusAction', value);
         }
     });
+
     
     /**
     *  透過網址去取值
@@ -30,10 +31,11 @@ export const getBodyData = () => {
         pediaParams.initalPaarams();
         pediaParams.UID =route.query.uid||'';
         return store.dispatch('pediaAction', pediaParams).then((res) => {
+            console.log(res)
             store.dispatch('setUIDAction',res.data[0].UID);
             // loading icon 關掉
             loading.value = false;  //
-            externalDependencyParams.DB_NAME =route.query.db || "";
+            externalDependencyParams.DB_NAME =res.data[0].DB_NAME|| "";
             externalDependencyParams.OBJECT_ID = res.data[0].OBJECT_ID||'';
             externalDependencyParams._NAME = apiSwitchCpSqlName(res.data[0].SERVER);
             store.dispatch('getExternalDependency',externalDependencyParams);

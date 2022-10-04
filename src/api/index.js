@@ -1,5 +1,5 @@
-import { usePediaAction, usePediaUseAction, useHeaderEditAction, useExternalDependencyAction, useRegisterAction, useNotionAction, useMarkAction, useSearchAction,useManagerAction } from './GetAxios';
-import { usePediaParams, usePediaUserParams, useHeaderEditParams, useExternalDependency, useRegisterParams, useNoticeParams, useMarkParams, useSearchParams,useMangerParams } from './params';
+import { usePediaAction, usePediaUseAction, useHeaderEditAction, useExternalDependencyAction, useRegisterAction, useNotionAction, useMarkAction, useSearchAction,useManagerAction,useGetUIDAction } from './GetAxios';
+import { usePediaParams, usePediaUserParams, useHeaderEditParams, useExternalDependency, useRegisterParams, useNoticeParams, useMarkParams, useSearchParams,useMangerParams ,useGetUIDParams} from './params';
 
 /**
  * EXEC [utility].[spSchemap_20220914]
@@ -58,3 +58,9 @@ export const apiUseSearchParams = useSearchParams
  */
 export const apiUseManagerAction = useManagerAction
 export const apiUseMangerParams=useMangerParams;
+
+/**
+ * 取得UID
+ */
+export const apiUseGetUIDAction= useGetUIDAction;
+export const apiUseGetUIDParams = useGetUIDParams;

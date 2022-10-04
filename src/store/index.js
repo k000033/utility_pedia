@@ -1,5 +1,5 @@
 import { createStore } from 'vuex'
-import { apiUsePediaAction,apiUseExternalDependencyAction,apiUseRegisterAction } from '../api/index'
+import { apiUsePediaAction,apiUseExternalDependencyAction,apiUseRegisterAction,apiUseGetUIDAction } from '../api/index'
 import HeaderEdit from './HeaderEdit'
 import NoteEdit from './NoteEdit'
 import SearchAction from './SearchAction'
@@ -114,6 +114,11 @@ export default createStore({
     },
     setCurrentViewAction({commit},viewString){
       commit('setCurrentVuew',viewString);
+    },
+    getUIDAction({commit},params){
+      return apiUseGetUIDAction(params).then((res)=>{
+           return res.data;
+      });
     }
   },
   mutations: {

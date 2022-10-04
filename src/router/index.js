@@ -1,6 +1,5 @@
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import Index from '../views/Index.vue'
-import ManageAccount from '../components/ManageAccount.vue'
 const routes = [
   {
     path: '/',
@@ -12,6 +11,7 @@ const routes = [
     name:"index",
     component:Index
   }
+
   // {
   //   path: '/about',
   //   name: 'about',

@@ -3,7 +3,8 @@ import { computed, reactive, ref } from "vue-demi";
 import { useStore } from "vuex";
 import DynamicTable from "./Detial.vue";
 import NoteListBox from "./component/NoteListBox.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import { apiUseGetUIDParams } from "../../api/index";
 export default {
   components: {
     DynamicTable,
@@ -12,28 +13,35 @@ export default {
   setup() {
     const store = useStore();
     const route = useRoute();
-    const activeNames =ref('');
+    const router= useRouter();
+    const activeNames = ref("");
     const titles = reactive({ data: [] });
+    const getUIDParams = new apiUseGetUIDParams();
+
     const getCollapse = computed(() => {
       return store.getters["getCollapse"];
     });
     const getCollapseTitle = computed(() => {
       return store.getters["getCollapseTitle"];
     });
-    
+
     // 本地相依性
     const getLocalDependency = computed(() => {
       return store.getters["getLocalDependency"];
     });
     // 外不相依性
-    const getExternalDependency = computed(()=>{
-      return store.getters['getExternalDependency'];
-    })
-
-    const getReadOnly = computed(()=>{
+    const getExternalDependency = computed(() => {
+      return store.getters["getExternalDependency"];
+    });
+    /**
+     * 判斷是不是唯讀，能不能新增附註
+     * 0.false 1.true
+     * 預設 1
+     */
+    const getReadOnly = computed(() => {
       const res = store.getters["getDetail"];
-     
-      return res.length==0?1:res[0].READONLY
+
+      return res.length == 0 ? 1 : res[0].READONLY;
     });
 
     /**
@@ -47,7 +55,7 @@ export default {
       store.dispatch("NoteEdit/readOnlyCollaspseTitleStatus", true);
       store.dispatch("NoteEdit/openCollapseNoteDialogAction", true);
     };
-    
+
     /**
      * 新增類別
      */
@@ -62,6 +70,30 @@ export default {
       store.dispatch("NoteEdit/openCollapseNoteDialogAction", true);
     };
 
+    const urlAction = (row) => {
+      getUIDParams.initalPaarams();
+      console.log(row);
+      getUIDParams._HOST = row.HOST;
+      getUIDParams._DB_NAME = row.DB_NAME;
+      getUIDParams._OBJECT = row.OBJECT_NAME;
+      store.dispatch("getUIDAction", getUIDParams).then((res) => {
+        console.log(res);
+        if (res.data[0].UID) {
+          let url = router.resolve({
+            path: "/index",
+            query: {
+              username: route.query.username,
+              uid: res.data[0].UID || "",
+            },
+          });
+          document.location.href = url.href;
+          document.location.reload();
+        } else {
+          store.dispatch('setCurrentViewAction','error');
+        }
+      });
+    };
+
     return {
       getCollapse,
       getCollapseTitle,
@@ -70,7 +102,8 @@ export default {
       btnAddCollapse,
       getLocalDependency,
       getExternalDependency,
-      getReadOnly
+      getReadOnly,
+      urlAction,
     };
   },
 };
@@ -80,7 +113,13 @@ export default {
   <div class="collapse_container">
     <div class="dAddCollapse">
       <h3>分類附註</h3>
-        <span v-if="getReadOnly==0" class="material-symbols-outlined" @click="btnAddCollapse()"> add </span>
+      <span
+        v-if="getReadOnly == 0"
+        class="material-symbols-outlined"
+        @click="btnAddCollapse()"
+      >
+        add
+      </span>
     </div>
     <el-collapse v-model="activeNames" v-if="getCollapseTitle.length > 0">
       <el-collapse-item
@@ -92,6 +131,7 @@ export default {
         <template #title>
           <h2 class="title">{{ title }}</h2>
           <span
+            v-if="getReadOnly == 0"
             class="material-symbols-outlined"
             @click.stop="addCollapeNote(title)"
           >
@@ -100,17 +140,20 @@ export default {
         </template>
         <div v-for="item in getCollapse" :key="item.RID">
           <template v-if="item.CATEGORY == title">
-          <NoteListBox :open="activeNames.includes(title)"  :infoObj="item" />
-        </template>
+            <NoteListBox :open="activeNames.includes(title)" :infoObj="item" />
+          </template>
         </div>
         <!-- <DynamicTable :item_id="1" :item_name="'2'" /> -->
       </el-collapse-item>
     </el-collapse>
 
     <!-- 參考 -->
-    <el-collapse v-model="activeNames" v-if="(getExternalDependency.length>0||getLocalDependency.length>0)">
+    <el-collapse
+      v-model="activeNames"
+      v-if="getExternalDependency.length > 0 || getLocalDependency.length > 0"
+    >
       <el-collapse-item title="相依性" name="1">
-        <div v-if="getLocalDependency.length>0">
+        <div v-if="getLocalDependency.length > 0">
           <ul class="ulRefer">
             <li>
               <span>本地相依性</span>
@@ -121,26 +164,23 @@ export default {
                   size="small"
                   table-layout="auto"
                 >
-                    <el-table-column prop="DEPEND_TYPE" label="DEPEND_TYPE"/>
-                    <el-table-column prop="DB_NAME" label="DB_NAME" />
-                    <el-table-column prop="SCHEMA_NAME" label="SCHEMA_NAME" />
-                    <el-table-column prop="OBJECT_NAME" label="OBJECT_NAME" />
-                    <el-table-column prop="TYPE_DESC" label="TYPE_DESC" />
-                    <el-table-column prop="DESCRIPTION" label="DESCRIPTION" />
-                  </el-table>
-  
+                  <el-table-column prop="DEPEND_TYPE" label="DEPEND_TYPE" />
+                  <el-table-column prop="DB_NAME" label="DB_NAME" />
+                  <el-table-column prop="SCHEMA_NAME" label="SCHEMA_NAME" />
+                  <el-table-column prop="OBJECT_NAME" label="OBJECT_NAME" />
+                  <el-table-column prop="TYPE_DESC" label="TYPE_DESC" />
+                  <el-table-column prop="DESCRIPTION" label="DESCRIPTION" />
+                </el-table>
               </div>
             </li>
           </ul>
         </div>
-        
-        <div v-if="getExternalDependency.length>0">
-      
+
+        <div v-if="getExternalDependency.length > 0">
           <ul class="ulRefer">
             <li>
               <span>外地相依性</span>
               <div>
-           
                 <el-table
                   :data="getExternalDependency"
                   stripe
@@ -149,16 +189,23 @@ export default {
                   height="200"
                   :scrollbar-always-on="true"
                 >
-                    <el-table-column prop="HOST" label="HOST"/>
-                    <el-table-column prop="DB_NAME" label="DB_NAME" />
-                    <el-table-column prop="SCHEMA_NAME" label="SCHEMA_NAME" />
-                    <el-table-column prop="OBJECT_NAME" label="OBJECT_NAME" />
-                  </el-table>
-
+                  <el-table-column prop="HOST" label="HOST" />
+                  <el-table-column prop="DB_NAME" label="DB_NAME" />
+                  <el-table-column prop="SCHEMA_NAME" label="SCHEMA_NAME" />
+                  <el-table-column prop="OBJECT_NAME" label="OBJECT_NAME">
+                    <template #default="scope">
+                      <a
+                        class="aLink"
+                        href="javascript:;"
+                        @click="urlAction(scope.row)"
+                        >{{ scope.row.OBJECT_NAME }}</a
+                      >
+                    </template>
+                  </el-table-column>
+                </el-table>
               </div>
             </li>
           </ul>
-       
         </div>
       </el-collapse-item>
     </el-collapse>
@@ -186,10 +233,10 @@ export default {
     margin-bottom: 20px;
     display: flex;
     align-items: center;
-    .material-symbols-outlined{
+    .material-symbols-outlined {
       font-variation-settings: "FILL" 1, "wght" 600, "GRAD" 0, "opsz" 48;
       margin-left: 5px;
-      &:hover{
+      &:hover {
         background: #eee;
         cursor: pointer;
       }

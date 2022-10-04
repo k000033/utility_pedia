@@ -100,17 +100,17 @@ export const useHeaderEditAction = (params) => {
     })
 }
 
-// 各 DB service 四格
+// 各 DB service 四格 取得外部相依性
 export const useExternalDependencyAction = (params) => {
     console.log('-- _NAME === ' + params._NAME);
     console.log('-- _TYPE === ' + 'DELETE');
-    console.log('-- DB_NAME === ' + params.DB_NAME);
+    console.log('-- _DB_NAME === ' + params.DB_NAME);
     console.log('-- OBJECT_ID === ' + params.OBJECT_ID);
     return defineAxios.get('', {
         params: {
             _NAME: params._NAME,
             _TYPE: 'DELETE',
-            DB_NAME: params.DB_NAME,
+            _DB_NAME: params.DB_NAME,
             OBJECT_ID: params.OBJECT_ID
         }
     })
@@ -235,6 +235,27 @@ export const useSearchAction = (params) => {
             ROLE:params.ROLE,
             PID:params.PID,
             BY_OBJECT:params.BY_OBJECT
+        }
+    });
+};
+
+
+/**
+ * --  取得UID 
+ */
+ export const useGetUIDAction = (params) => {
+    console.log('-- _NAME === ' + 'utility.Pedia_2');
+    console.log('-- _TYPE === ' + 'DELETE');
+    console.log('-- _HOST === ' + params._HOST);
+    console.log('-- _DB_NAME === ' + params._DB_NAME);
+    console.log('-- _OBJECT === ' + params._OBJECT);
+    return defineAxios.get('', {
+        params: {
+            _NAME: "utility.Pedia_2",
+            _TYPE: "DELETE",
+            _HOST: params._HOST,
+            _DB_NAME: params._DB_NAME,
+            _OBJECT:params._OBJECT,
         }
     });
 };

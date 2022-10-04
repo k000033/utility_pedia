@@ -218,3 +218,21 @@ export class useMangerParams{
         this.BY_OBJECT="";
     }
 }
+
+
+/**
+ * --  取得UID 
+ */
+export class useGetUIDParams{
+    constructor(){
+      this._HOST="";
+      this._DB_NAME="";
+      this._OBJECT ="";
+    }
+    initalPaarams(){
+      this._HOST="";
+      this._DB_NAME="";
+      this._OBJECT ="";
+    }
+}
+
