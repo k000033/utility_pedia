@@ -116,7 +116,7 @@ body {
   }
 
   .display_PKnone {
-    .material-symbols-outlined {
+    .PKIcon {
       display: none;
 
       &.keyIcon {
@@ -127,6 +127,12 @@ body {
 
   .objectLink {
     text-decoration: none;
+  }
+
+  .discovered {
+    .objectLink{
+      color: #681da8;
+    }
   }
 }
 
@@ -223,6 +229,7 @@ body {
     .el-textarea__inner{
       padding: 0 ;
       box-shadow: none;
+
     }
   }
 }
@@ -231,5 +238,11 @@ body {
   .el-input__wrapper{
     box-shadow: none;
   }
+}
+
+textarea.el-textarea__inner{
+   font-family: monospace;
+   font-size: 13px;
+   line-height: 16px;
 }
 </style>

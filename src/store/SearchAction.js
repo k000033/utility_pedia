@@ -11,7 +11,7 @@ export default {
         pageSize: 12,
         dataTotol: 0,
         // 一般搜尋，較大搜尋，最大搜尋
-        searchType: '2',
+        searchType: '3',
         // 紀錄按下哪種搜尋按鈕
         currentBtnSearch:0,
         // 紀錄搜尋欄位文字
@@ -88,6 +88,7 @@ export default {
         }, setCurrentReslut(state) {
             // 取得當前頁籤的資料
             const arr = state.searchResult.slice((state.currentPage - 1) * state.pageSize, state.currentPage * state.pageSize)
+            console.log(arr);
             state.currentReslut = arr;
         }, setSearchType(state, type) {
             state.searchType = type;

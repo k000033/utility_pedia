@@ -57,11 +57,21 @@ export default {
     },
     editMarkAction({commit},params){
       return apiUseMarkAction(params).then((res)=>{
+        console.log('------------------------------------------------');
+        console.log('-- editMarkAction() start ::: ' + apiGetNowTime());
+        console.log('-- Table length ::: ' + res.data.data.length);
+        console.log('-- data error ::: ' + res.data.msg);
+        console.log('-- editMarkAction() end ::: ' + apiGetNowTime());
+        console.log('------------------------------------------------');
         //type = 1 訂閱
         if(params.TYPE==1){
           commit('setSubscription',res.data);
           return res.data;
-        }
+        }else if(params.TYPE==0){
+          console.log(res.data);
+          commit('setSubscription',res.data);
+          return res.data;
+        };
       })
     },
     editTitle({commit},title){

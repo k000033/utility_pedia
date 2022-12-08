@@ -4,6 +4,7 @@ import HeaderEdit from './HeaderEdit'
 import NoteEdit from './NoteEdit'
 import SearchAction from './SearchAction'
 import Manager from './Manager'
+import ColumnEdit from './ColumnEdit'
 import {apiGetNowTime} from '../componentAPI/index'
 export default createStore({
   state: {
@@ -32,7 +33,7 @@ export default createStore({
     // 搜尋畫面 end
 
     // 側邊欄位開關
-    openSiderBar:false
+    openSiderBar:false,
    
   },
   actions: {
@@ -123,7 +124,13 @@ export default createStore({
   },
   mutations: {
     setDetail(state, data) {
+      
+      
+      data[0].SUBSCRIBE = data[0].REFERENCE_TYPE %5==0
+      data[0].COLLAPSE = data[0].REFERENCE_TYPE %3==0
+      data[0].MANAGER = data[0].REFERENCE_TYPE %2==0
       state.detial = data;
+      // 
     },
     setCollapse(state, data) {
       state.collapse = data;
@@ -229,7 +236,7 @@ export default createStore({
     }
   },
   modules: {
-    HeaderEdit,NoteEdit,SearchAction,Manager
+    HeaderEdit,NoteEdit,SearchAction,Manager,ColumnEdit
   }
   
 })

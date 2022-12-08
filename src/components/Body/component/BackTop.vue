@@ -60,6 +60,7 @@ export default {
       var top = document.getElementById("to-top"); //获取图片元素
       var timer = null;
       top.onclick = function () {
+        clearInterval(timer);
         //点击图片时触发点击事件
         timer = setInterval(function () {
           //设置一个计时器

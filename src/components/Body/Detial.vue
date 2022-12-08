@@ -3,7 +3,7 @@ import { computed } from "vue-demi";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import { apiUseMarkParams } from "../../api/index";
-import HaderEditDialog from "../Body/component/HaderEditDialog.vue";
+import HaderEditDialog from "./component/HeaderEditDialog.vue";
 export default {
   components: {
     HaderEditDialog,
@@ -15,31 +15,69 @@ export default {
     const getDetail = computed(() => {
       return store.getters["getDetail"];
     });
-    
-    const getUserROle = computed(()=>{
-      const res =  store.getters["getDetail"];
-      return res.length==0?5:res[0].USER_ROLE;
-    })
+
+    const getUserROle = computed(() => {
+      const res = store.getters["getDetail"];
+      return res.length == 0 ? 5 : res[0].USER_ROLE;
+    });
     // const getSubscription = computed(() => {
     //   store.getters["HeaderEdit/getSubscription"];
     // });
 
+    // /**
+    //  * 管理者按鈕
+    //  * TYPE = 0
+    //  *   */
+    // const btnManage = () => {
+    //   useMarkParams.initalPaarams();
+    //   useMarkParams.UID = getDetail.value[0].UID;
+    //   useMarkParams.TYPE = 0;
+    //   store
+    //     .dispatch("HeaderEdit/editMarkAction", useMarkParams)
+    //     .then((res) => {});
+    // };
+
+    // /**
+    //  * 收藏按鈕
+    //  * TYPE = 1
+    //  *   */
+    // const btnRefence = () => {
+    //   useMarkParams.initalPaarams();
+    //   useMarkParams.UID = getDetail.value[0].UID;
+    //   useMarkParams.TYPE = 1;
+    //   store
+    //     .dispatch("HeaderEdit/editMarkAction", useMarkParams)
+    //     .then((res) => {});
+    // };
+
     /**
      * 訂閱按鈕
-     * TYPE = 1
+     * TYPE = 2
      * REFERENCE_TYPE = 0 訂閱，1不訂閱
      * REFERENCE = 訂閱人員顛
      */
-    const btnSubscription = () => {
+    const btnSubscription = (type) => {
       useMarkParams.initalPaarams();
       useMarkParams.UID = getDetail.value[0].UID;
-      useMarkParams.TYPE = 1;
+      useMarkParams.TYPE = type;
       store.dispatch("HeaderEdit/editMarkAction", useMarkParams).then((res) => {
-        getDetail.value[0].REFERENCE_TYPE =
-          getDetail.value[0].REFERENCE_TYPE == 1 ? 0 : 1;
-        getDetail.value[0].REFERENCE = res.data[0].REFERENCE;
+        if (type == 2) {
+          getDetail.value[0].SUBSCRIBE =
+            getDetail.value[0].SUBSCRIBE == true ? false : true;
+        } else if (type == 0) {
+          getDetail.value[0].MANAGER =
+            getDetail.value[0].MANAGER == true ? false : true;
+
+          getDetail.value[0].REFERENCE = res.data[0].REFERENCE;
+        } else if (type == 1) {
+          getDetail.value[0].COLLAPSE =
+            getDetail.value[0].COLLAPSE == true ? false : true;
+        }
+
+        // getDetail.value[0].REFERENCE = res.data[0].REFERENCE;
       });
     };
+
     /**
      * 開啟編輯Dialog
      * 設定Dialog 要用的參數
@@ -71,8 +109,9 @@ export default {
     return {
       getDetail,
       btnSubscription,
+      // btnRefence,
       openEditDialog,
-      getUserROle
+      getUserROle,
     };
   },
 };
@@ -102,28 +141,60 @@ export default {
               </span>
             </li>
             <li>
-              <a href="javascript:;" @click="btnSubscription()">
+              <a
+                href="javascript:;"
+                :class="[{ isRefference: getDetail[0].SUBSCRIBE == true }]"
+                @click="btnSubscription(2)"
+              >
                 <span
                   :class="[
                     'material-symbols-outlined',
                     'spanIcon',
-                    { isRefference: getDetail[0].REFERENCE_TYPE == 1 },
+                    { isRefference: getDetail[0].SUBSCRIBE == true },
                   ]"
                 >
                   notifications
                 </span>
-                <span class="spn_action spnUse">訂閱</span></a
+                <span class="spn_action spnUse">引用</span></a
               >
             </li>
             <li>
-              <a href="javascript:;" @click="openEditDialog">
-                <span class="material-symbols-outlined spanIcon">
+              <a
+                href="javascript:;"
+                :class="[{ isRefference: getDetail[0].COLLAPSE == true }]"
+                @click="btnSubscription(1)"
+              >
+                <span
+                  :class="[
+                    'material-symbols-outlined',
+                    'spanIcon',
+                    { isRefference: getDetail[0].COLLAPSE == true },
+                  ]"
+                >
                   import_contacts
                 </span>
                 <span class="spn_action spnEdit"> 收藏</span>
               </a>
             </li>
-            <li v-if="getUserROle==2">
+            <li>
+              <a
+                href="javascript:;"
+                :class="[{ isRefference: getDetail[0].MANAGER == true }]"
+                @click="btnSubscription(0)"
+              >
+                <span
+                  :class="[
+                    'material-symbols-outlined',
+                    'spanIcon',
+                    { isRefference: getDetail[0].MANAGER == true },
+                  ]"
+                >
+                  Person
+                </span>
+                <span class="spn_action spnEdit">管理者</span>
+              </a>
+            </li>
+            <li v-if="getUserROle == 2">
               <a href="javascript:;" @click="openEditDialog">
                 <span class="material-symbols-outlined spanIcon spnEditIcon">
                   edit
@@ -137,7 +208,7 @@ export default {
       </div>
     </div>
     <div class="refferenceBOX" v-if="getDetail[0].REFERENCE != null">
-      <div>引用者清單</div>
+      <div>管理者</div>
       <div>
         {{ getDetail[0].REFERENCE }}
       </div>
@@ -190,6 +261,10 @@ export default {
           align-items: center;
           text-decoration: none;
           padding: 0 12px;
+          &.isRefference {
+            font-variation-settings: "FILL" 1, "wght" 700, "GRAD" 0, "opsz" 48;
+            color: #efa2a2;
+          }
 
           .spanIcon {
             padding-right: 5px;
@@ -198,7 +273,7 @@ export default {
             }
             &.isRefference {
               font-variation-settings: "FILL" 1, "wght" 700, "GRAD" 0, "opsz" 48;
-              color: #dddd0c;
+              color: #efa2a2;
             }
           }
         }

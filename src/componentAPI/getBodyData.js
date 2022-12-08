@@ -35,10 +35,14 @@ export const getBodyData = () => {
             store.dispatch('setUIDAction',res.data[0].UID);
             // loading icon 關掉
             loading.value = false;  //
-            externalDependencyParams.DB_NAME =res.data[0].DB_NAME|| "";
+            if(res.data[0].OBJECT_LEVEL==2)
+            {
+                         externalDependencyParams.DB_NAME =res.data[0].DB_NAME|| "";
             externalDependencyParams.OBJECT_ID = res.data[0].OBJECT_ID||'';
             externalDependencyParams._NAME = apiSwitchCpSqlName(res.data[0].SERVER);
-            store.dispatch('getExternalDependency',externalDependencyParams);
+            store.dispatch('getExternalDependency',externalDependencyParams);   
+            }
+
             // if(data){
             //     state.objectID = data[0].OBJECT_ID;
             // }

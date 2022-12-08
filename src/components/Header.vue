@@ -4,10 +4,11 @@ import { useStore } from "vuex";
 import { Search } from "@element-plus/icons-vue";
 import { apiUseSearchParams } from "../api/index";
 import { apiExportSearchInfo } from "../componentAPI/index";
-import SiderBar from './SideBar.vue'
+import SiderBar from "./SideBar.vue";
 export default {
   components: {
-    Search,SiderBar
+    Search,
+    SiderBar,
   },
   setup() {
     // const iptSearch = ref("");
@@ -34,7 +35,7 @@ export default {
      * 側邊欄位
      */
     const btnSideBar_click = () => {
-      store.dispatch('setOpenSiderBarAction',true);
+      store.dispatch("setOpenSiderBarAction", true);
     };
 
     const getLoading = computed(() => {
@@ -60,11 +61,14 @@ export default {
     //   },
     // });
 
-    const currentTab = computed({get(){
+    const currentTab = computed({
+      get() {
         return store.getters["SearchAction/getCurrentTabText"];
-    },set(value){
+      },
+      set(value) {
         store.dispatch("SearchAction/setCurrentTabAction", value);
-    }})
+      },
+    });
 
     /**
      * 按下搜尋
@@ -93,8 +97,8 @@ export default {
     //       store.dispatch("loadingSatatusAction", false);
     //     });
     // };
-    
-    // 搜尋 訂閱 收藏 
+
+    // 搜尋 訂閱 收藏
     const btnSearch = (num) => {
       currentBtnSearch.value = num;
       console.log(getSearchType.value);
@@ -108,7 +112,7 @@ export default {
       //顯示loading圖案，切換搜尋畫面
       store.dispatch("loadingSatatusAction", true);
       // store.dispatch("editSearchView", true);
-      store.dispatch("setCurrentViewAction", 'searchView');
+      store.dispatch("setCurrentViewAction", "searchView");
       //帶入參數
       searchParams.initalPaarams();
       searchParams.FILTER = getSearchText.value;
@@ -195,16 +199,22 @@ export default {
         </div>
         <!-- 訂閱 -->
         <div class="btnSearchType">
-          <a @click="btnSearch(1)">
+          <a @click="btnSearch(2)">
             <!-- <el-icon><Bell @click="btnAction(1)" /></el-icon> -->
             <el-icon><Bell /></el-icon>
           </a>
         </div>
         <!-- 收藏 -->
         <div class="btnSearchType">
-          <a @click="btnSearch(0)">
+          <a @click="btnSearch(1)">
             <!-- <el-icon><Reading @click="btnAction(0)" /></el-icon> -->
             <el-icon><Reading /></el-icon>
+          </a>
+        </div>
+        <div class="btnSearchType">
+          <a @click="btnSearch(0)">
+            <!-- <el-icon><Reading @click="btnAction(0)" /></el-icon> -->
+          <el-icon><User /></el-icon>
           </a>
         </div>
         <div></div>

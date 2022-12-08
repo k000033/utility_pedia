@@ -16,7 +16,6 @@ export default {
       return store.getters["SearchAction/getCurrentPage"];
     });
 
-
     const currentTab = computed({
       get() {
         return store.getters["SearchAction/getCurrentTabText"];
@@ -29,7 +28,10 @@ export default {
      * 取得搜尋結果清單
      */
     const getResult = computed(() => {
-      return store.getters["SearchAction/getCurrentReslut"];
+      // document.getElementById('test').innerHTML='';
+      const res = store.getters["SearchAction/getCurrentReslut"];
+      console.log(res);
+      return res;
     });
     /**
      * 取得搜尋 sever DB 數量
@@ -137,15 +139,17 @@ export default {
      * 回上一頁
      */
     const btnArrowLeft = () => {
-        currentTab.value='ALL';
+      currentTab.value = "ALL";
       store.dispatch("SearchAction/claerSearchResult");
       // store.dispatch("editSearchView", false);
-      store.dispatch("setCurrentViewAction", 'body');
+      store.dispatch("setCurrentViewAction", "body");
     };
     /**
      * 頁籤切換
      */
     const pageChange = (num) => {
+      document.documentElement.scrollTop = 0;
+      //  document.querySelectorAll(".test").forEach(e => e.remove());
       store.dispatch("SearchAction/setCurrentPageAction", num);
       store.dispatch("SearchAction/setCurrentReslutAction");
     };
@@ -153,6 +157,8 @@ export default {
      * 切換TAB
      */
     const dTab_Click = (tabText) => {
+      // document.querySelectorAll(".test").forEach(e => e.remove());
+
       currentTab.value = tabText;
       reSearchResult();
       //   store.dispatch("SearchAction/claerSearchResult");
@@ -202,6 +208,17 @@ export default {
         });
     };
 
+    const copyAction = (evt) => {
+      evt.clipboardData.setData("text/plain", "禁止複製");
+      alert("不允許複製");
+      evt.preventDefault();
+    };
+
+    const notDragDrop = (evt) => {     
+      evt.preventDefault();
+          return false;
+    };
+
     const value = ref("2");
     return {
       getObject,
@@ -218,6 +235,8 @@ export default {
       currentTab,
       getSearchType,
       sltSearchType_change,
+      copyAction,
+      notDragDrop,
     };
   },
 };
@@ -240,7 +259,7 @@ export default {
           >
             <span>All</span>
           </div>
-            <!-- <div
+          <!-- <div
                 :class="['dSearchTablist', { open: currentTab == 'All Object' }]"
                 @click="dTab_Click('All Object')"
             >
@@ -271,7 +290,11 @@ export default {
             <span>Function</span>
           </div>
           <div
-            :class="['dSearchTablist','otherTab', { open: currentTab == 'SQL SCRIPT' }]"
+            :class="[
+              'dSearchTablist',
+              'otherTab',
+              { open: currentTab == 'SQL SCRIPT' },
+            ]"
             @click="dTab_Click('SQL SCRIPT')"
           >
             <span>SQL Script</span>
@@ -291,9 +314,9 @@ export default {
               size="small"
               @change="sltSearchType_change"
             >
-              <el-option key="2" label="一般範圍" value="2" />
-              <el-option key="3" label="較大範圍" value="3" />
-              <el-option key="4" label="最大範圍" value="4" />
+              <el-option key="2" label="一般範圍" value="3" />
+              <el-option key="3" label="較大範圍" value="4" />
+              <el-option key="4" label="最大範圍" value="5" />
             </el-select>
           </div>
         </div>
@@ -305,44 +328,46 @@ export default {
     </div>
     <!-- body -->
     <!-- <el-scrollbar view-class="scrollHeight" :always="true"> -->
-      <div v-for="item in getResult" :key="item.OBJECT_NAME">
-        <div :class="['rlsList', { chickable: item.CLICKABLE == 1 }]">
-          <div class="rlsTitle">
-            <!-- UMP_itm.UMP_CATEGORY -->
-            <a
-              class="aTitle"
-              href="javascript:;"
-              @click="aTitle_click(item.UID, item.CLICKABLE)"
-              >{{
-                item.DB_NAME + "_" + item.SCHEMA_NAME + "." + item.OBJECT_NAME
-              }}
-            </a>
-          </div>
-          <!-- 商品分類主檔 USER_TABLE -->
-          <div class="rlsType">
-            <span v-if="item.CAPTION1!=null"> {{ item.CAPTION || "" }}</span
-            ><span>{{ item.TYPE_DESC }}</span>
-          </div>
-          <div class="rlsAdministrator">
-            <span>{{ item.ADMINISTRATOR }}</span>
-          </div>
-          <!-- 2022-08-12 11:13:34 — 儲存商品分類基本資料。分類的各階層資料皆儲存於此資料表中 -->
-          <div class="rlsDesc">
-            {{ item.MODIFY_DATE + " — " + (item.DESCRIPTION || "") }}
-          </div>
-          <div v-if="item.TXT!=null">
-            <el-input
-              v-model="item.TXT"
-              :rows="6"
-              type="textarea"
-              placeholder="Please input"
-              readonly="ture"
-              resize="none"
-        
-            />
-          </div>
+    <div class="test" v-for="item in getResult" :key="item.OBJECT">
+      <div :class="['rlsList', { chickable: item.CLICKABLE == 1 }]">
+        <div class="rlsTitle">
+          <!-- UMP_itm.UMP_CATEGORY -->
+          <a
+            class="aTitle"
+            href="javascript:;"
+            @click="aTitle_click(item.UID, item.CLICKABLE)"
+            >{{
+              item.DB_NAME + "." + item.SCHEMA_NAME + "." + item.OBJECT_NAME
+            }}
+          </a>
+        </div>
+        <!-- 商品分類主檔 USER_TABLE -->
+        <div class="rlsType">
+          <span v-if="item.CAPTION1 != null"> {{ item.CAPTION || "" }}</span
+          ><span>{{ item.TYPE_DESC }}</span>
+        </div>
+        <div class="rlsAdministrator">
+          <span>{{ item.ADMINISTRATOR }}</span>
+        </div>
+        <!-- 2022-08-12 11:13:34 — 儲存商品分類基本資料。分類的各階層資料皆儲存於此資料表中 -->
+        <div class="rlsDesc">
+          {{ item.MODIFY_DATE + " — " + (item.DESCRIPTION || "") }}
+        </div>
+        <div v-if="item.TXT != null">
+          <el-input
+            v-model="item.TXT"
+            :rows="6"
+            type="textarea"
+            placeholder="Please input"
+            :readonly="true"
+            resize="none"
+            @copy="copyAction"
+            @dragstart="notDragDrop"
+            @drop="notDragDrop"
+          />
         </div>
       </div>
+    </div>
     <!-- </el-scrollbar> -->
     <!-- foot -->
     <div class="dPagination" v-if="getResult.length > 0">
@@ -445,18 +470,17 @@ export default {
           cursor: pointer;
           height: 22px;
           position: relative;
-          &.otherTab{
-                    &::before{
-                      content: '';
-                      position: absolute;
-                      top: 0;
-                      left: -10px;
-                      width: 2px;
-                      height: 80%;
-                      background-color: rgb(179, 169, 169);
-                    }
+          &.otherTab {
+            &::before {
+              content: "";
+              position: absolute;
+              top: 0;
+              left: -10px;
+              width: 2px;
+              height: 80%;
+              background-color: rgb(179, 169, 169);
+            }
           }
-
 
           //   目前點擊的頁切
           &.open {
@@ -471,7 +495,6 @@ export default {
               bottom: 0px;
             }
           }
-
         }
       }
     }

@@ -6,8 +6,8 @@ import "ag-grid-enterprise";
 import { useStore } from "vuex";
 import { computed, onBeforeMount, onMounted, reactive, watch } from "vue-demi";
 import { useRoute, useRouter } from "vue-router";
-import HaderEditDialog from "../component/HaderEditDialog.vue";
 import { apiUseRegisterParams } from "../../../api/index";
+import ColumnEditDialog from "./ColumnEditDialog.vue";
 export default {
   props: {
     agGridHight: {
@@ -22,10 +22,14 @@ export default {
       type: String,
       default: 0,
     },
+    domLayout: {
+      type: String,
+      default: "normal",
+    },
   },
   components: {
     AgGridVue,
-    HaderEditDialog,
+    ColumnEditDialog,
   },
   setup(props) {
     const store = useStore();
@@ -39,13 +43,17 @@ export default {
     /**
      * 開啟編輯Dialog
      */
-    const openEditDialog = () => {
+    const openHeaderEditDialog = () => {
       store.dispatch("HeaderEdit/openEditDialogAction", true);
+    };
+
+    const openColumnEditDialog = () => {
+      store.dispatch("ColumnEdit/openDialogAction", true);
     };
 
     const uid = computed({
       get() {
-      return  store.getters["getUID"];
+        return store.getters["getUID"];
       },
       set(value) {
         store.dispatch("setUIDAction", value);
@@ -76,7 +84,7 @@ export default {
           });
           return;
         } else {
-          uid.value =  cell.data.UID;
+          uid.value = cell.data.UID;
           reslodUrl();
         }
       }
@@ -91,10 +99,23 @@ export default {
         store.dispatch("HeaderEdit/editLeavelType", cell.data.LEVELTYPE);
         store.dispatch("HeaderEdit/editObjectLevel", cell.data.OBJECT_LEVEL);
         store.dispatch("HeaderEdit/editObject", cell.data.OBJECT_NAME);
-        store.dispatch("HeaderEdit/editSchema", cell.data.SCHEMA_NAME||'');
+        store.dispatch("HeaderEdit/editSchema", cell.data.SCHEMA_NAME || "");
         store.dispatch("HeaderEdit/editDB", cell.data.DB_NAME);
         // store.dispatch("HeaderEdit/editObjectName", cell.data.OBJECT_NAME);
-        openEditDialog();
+        openHeaderEditDialog();
+      }
+
+      /**
+       * 點擊 Column 編輯欄位描述
+       */
+
+      if (["EDITColumn"].includes(cell.colDef.field)) {
+        openColumnEditDialog();
+        store.dispatch("ColumnEdit/setColumnNameAction", cell.data.COLUMN_NAME);
+        store.dispatch(
+          "ColumnEdit/editDescriptionAction",
+          cell.data.DESCRIPTION == null ? "" : cell.data.DESCRIPTION
+        );
       }
     };
 
@@ -117,14 +138,23 @@ export default {
      */
     const columnColDefs = [
       {
-        headerName: "PK",
+        headerName: "編輯",
+        field: "EDITColumn",
+        width: "70px",
+        cellClass: "EditIcon",
+        cellRenderer: function (params) {
+          return `<a><span class="material-symbols-outlined">edit</span></a>`;
+        },
+      },
+      {
+        headerName: "",
         field: "PK",
-        filter: "agTextColumnFilter",
+
         sortable: true,
-        width: "80px",
+        width: "50px",
         cellClass: "keyIcon",
         cellRenderer: function (params) {
-          return `<div> <span class="material-symbols-outlined">vpn_key</span></div>`;
+          return `<div> <span class="material-symbols-outlined PKIcon">vpn_key</span></div>`;
         },
       },
       {
@@ -215,16 +245,23 @@ export default {
         sortable: true,
         width: "100px",
       },
-      {
-        headerName: "CRT_TIME",
-        field: "CRT_TIME",
+                  {
+        headerName: "UPD_TIME",
+        field: "UPD_TIME",
+        filter: "agTextColumnFilter",
+        sortable: true,
+        width: "140px",
+      },
+            {
+        headerName: "UPD_TIME",
+        field: "UPD_TIME",
         filter: "agTextColumnFilter",
         sortable: true,
         width: "140px",
       },
       {
-        headerName: "UPD_TIME",
-        field: "UPD_TIME",
+        headerName: "CRT_TIME",
+        field: "CRT_TIME",
         filter: "agTextColumnFilter",
         sortable: true,
         width: "140px",
@@ -250,7 +287,7 @@ export default {
         field: "CAPTION",
         filter: "agTextColumnFilter",
         sortable: true,
-        width: "200px"
+        width: "200px",
       },
       {
         headerName: "UPD_TIME",
@@ -289,6 +326,9 @@ export default {
         display_Readlynone: function (params) {
           return params.data.READONLY != 0;
         },
+        discovered:function(params){
+          return params.data.DISCOVERED==1
+        }
       },
       onGridReady(params) {
         window.ObjectGridApi = params.api;
@@ -312,8 +352,10 @@ export default {
       enableCellTextSelection="true"
       @CellMouseDown="CellMouseDown"
       :rowClassRules="rowClassRules"
+      :domLayout="props.domLayout"
     >
     </ag-grid-vue>
+    <ColumnEditDialog />
   </div>
 </template>
 
